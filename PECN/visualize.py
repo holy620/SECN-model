@@ -4,15 +4,38 @@ from matplotlib.axes import Axes
 from .filters import IFilter, MasterFilter, ColorizerFilter
 from .generators import gen_inference_deep, gen_inference_wide
 from PIL import Image
-
-# 修复导入部分的缩进问题
 try:
-    import ffmpeg # type: ignore
+    try:
+        import ffmpeg # type: ignore
+    except ImportError:
+        print("ffmpeg not installed. Video functionality will not work.")
+ # type: ignore
+except ImportError:
+    print("ffmpeg not installed. Video functionality will not work.")
+ # type: ignore
+except ImportError:
+    print("ffmpeg not installed. Video functionality will not work.")
+ # type: ignore
+except ImportError:
+    print("ffmpeg not installed. Video functionality will not work.")
+ # type: ignore
 except ImportError:
     print("ffmpeg not installed. Video functionality will not work.")
 
 try:
     import yt_dlp as youtube_dl # type: ignore
+except ImportError:
+    print("yt_dlp not installed. YouTube download functionality will not work.")
+ # type: ignore
+except ImportError:
+    print("yt_dlp not installed. YouTube download functionality will not work.")
+ # type: ignore
+except ImportError:
+    print("yt_dlp not installed. YouTube download functionality will not work.")
+ # type: ignore
+except ImportError:
+    print("yt_dlp not installed. YouTube download functionality will not work.")
+ # type: ignore
 except ImportError:
     print("yt_dlp not installed. YouTube download functionality will not work.")
 

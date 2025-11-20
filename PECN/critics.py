@@ -5,6 +5,7 @@ from fastai.torch_core import *
 from fastai.vision import *
 from fastai.vision.data import ImageDataBunch
 from fastai.vision.gan import AdaptiveLoss, accuracy_thresh_expand
+from .physical_modules import PhysicalAwareEnhancement
 
 _conv_args = dict(leaky=0.2, norm_type=NormType.Spectral)
 
@@ -14,10 +15,12 @@ def _conv(ni: int, nf: int, ks: int = 3, stride: int = 1, **kwargs):
 
 
 def custom_gan_critic(
-    n_channels: int = 3, nf: int = 256, n_blocks: int = 3, p: int = 0.15
+    n_channels: int = 3, nf: int = 256, n_blocks: int = 3, p: int = 0.15,
+    use_physical_enhancement: bool = True
 ):
-    "Critic to train a `GAN`."
+    "Critic to train a `GAN` with physical enhancement."
     layers = [_conv(n_channels, nf, ks=4, stride=2), nn.Dropout2d(p / 2)]
+    
     for i in range(n_blocks):
         layers += [
             _conv(nf, nf, ks=3, stride=1),
@@ -25,6 +28,9 @@ def custom_gan_critic(
             _conv(nf, nf * 2, ks=4, stride=2, self_attention=(i == 0)),
         ]
         nf *= 2
+        if use_physical_enhancement and i == 0:
+            layers.append(PhysicalAwareEnhancement(nf))
+    
     layers += [
         _conv(nf, nf, ks=3, stride=1),
         _conv(nf, 1, ks=4, bias=False, padding=0, use_activ=False),
@@ -37,10 +43,11 @@ def colorize_crit_learner(
     data: ImageDataBunch,
     loss_critic=AdaptiveLoss(nn.BCEWithLogitsLoss()),
     nf: int = 256,
+    use_physical_enhancement: bool = True
 ) -> Learner:
     return Learner(
         data,
-        custom_gan_critic(nf=nf),
+        custom_gan_critic(nf=nf, use_physical_enhancement=use_physical_enhancement),
         metrics=accuracy_thresh_expand,
         loss_func=loss_critic,
         wd=1e-3,
